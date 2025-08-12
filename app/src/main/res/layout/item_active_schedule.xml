@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="4dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="2dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/tv_schedule_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="스케줄 이름"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:id="@+id/tv_schedule_time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="월,화,수 | 09:00 - 18:00"
+            android:textSize="14sp"
+            android:textColor="@android:color/darker_gray"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:id="@+id/tv_schedule_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="활성화"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/holo_green_dark"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/tv_blocked_apps"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="차단 앱: Instagram, TikTok, YouTube"
+            android:textSize="12sp"
+            android:textColor="@android:color/darker_gray"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:id="@+id/tv_blocked_websites"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="차단 사이트: facebook.com, twitter.com"
+            android:textSize="12sp"
+            android:textColor="@android:color/darker_gray"
+            android:maxLines="1"
+            android:ellipsize="end" />
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

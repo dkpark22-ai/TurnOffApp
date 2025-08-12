@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:paddingBottom="48dp">
+
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/edit_schedule"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginBottom="24dp" />
+
+        <!-- 스케줄 이름 -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/schedule_name"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <EditText
+            android:id="@+id/et_schedule_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="예: 업무 시간"
+            android:layout_marginBottom="16dp" />
+
+        <!-- 시간 설정 -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="시간 설정"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <Button
+                android:id="@+id/btn_start_time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="시작: 09:00"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/btn_end_time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="종료: 18:00"
+                android:layout_marginStart="8dp" />
+
+        </LinearLayout>
+
+        <!-- 요일 선택 -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/days_of_week"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <CheckBox
+                android:id="@+id/cb_sunday"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/sunday"
+                android:textSize="12sp" />
+
+            <CheckBox
+                android:id="@+id/cb_monday"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/monday"
+                android:textSize="12sp" />
+
+            <CheckBox
+                android:id="@+id/cb_tuesday"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/tuesday"
+                android:textSize="12sp" />
+
+            <CheckBox
+                android:id="@+id/cb_wednesday"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/wednesday"
+                android:textSize="12sp" />
+
+            <CheckBox
+                android:id="@+id/cb_thursday"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/thursday"
+                android:textSize="12sp" />
+
+            <CheckBox
+                android:id="@+id/cb_friday"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/friday"
+                android:textSize="12sp" />
+
+            <CheckBox
+                android:id="@+id/cb_saturday"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/saturday"
+                android:textSize="12sp" />
+
+        </LinearLayout>
+
+        <!-- 차단할 앱/웹사이트 선택 -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="차단 설정"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <Button
+            android:id="@+id/btn_select_apps"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="차단할 앱 선택"
+            android:layout_marginBottom="8dp" />
+
+        <Button
+            android:id="@+id/btn_select_websites"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="차단할 웹사이트 선택"
+            android:layout_marginBottom="16dp" />
+
+        <!-- 선택된 차단 목록 표시 -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="선택된 차단 목록"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <!-- 선택된 앱 목록 -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="차단할 앱:"
+            android:textSize="12sp"
+            android:textColor="@android:color/darker_gray"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:id="@+id/tv_selected_apps"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="선택된 앱이 없습니다"
+            android:textSize="12sp"
+            android:padding="8dp"
+            android:background="#F5F5F5"
+            android:minHeight="40dp"
+            android:layout_marginBottom="8dp" />
+
+        <!-- 선택된 웹사이트 목록 -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="차단할 웹사이트:"
+            android:textSize="12sp"
+            android:textColor="@android:color/darker_gray"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:id="@+id/tv_selected_websites"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="선택된 웹사이트가 없습니다"
+            android:textSize="12sp"
+            android:padding="8dp"
+            android:background="#F5F5F5"
+            android:minHeight="40dp"
+            android:layout_marginBottom="24dp" />
+
+        <!-- 저장/취소 버튼 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_cancel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/cancel"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/btn_save"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/save"
+                android:layout_marginStart="8dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>
