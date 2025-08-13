@@ -16,6 +16,8 @@ class SettingsManager(context: Context) {
         private const val KEY_FOCUS_DURATION = "focus_duration"
         private const val KEY_IS_FOCUS_ACTIVE = "is_focus_active"
         private const val KEY_SCHEDULES = "schedules"
+        private const val KEY_FOCUS_MODES = "focus_modes"
+        private const val KEY_CURRENT_FOCUS_MODE = "current_focus_mode"
         private const val KEY_FOCUS_START_TIME = "focus_start_time"
         private const val KEY_FOCUS_END_TIME = "focus_end_time"
         private const val KEY_FOCUS_MODE_NAME = "focus_mode_name"
@@ -165,6 +167,15 @@ class SettingsManager(context: Context) {
     }
 
     fun getActiveBlockedApps(): Set<String> {
+        // 집중모드가 활성화된 경우 집중모드의 차단 목록 사용
+        if (isFocusActive()) {
+            val currentFocusMode = getCurrentFocusMode()
+            if (currentFocusMode != null) {
+                return currentFocusMode.blockedApps
+            }
+        }
+        
+        // 스케줄이 활성화된 경우 스케줄의 차단 목록 사용
         val activeSchedule = getActiveSchedule()
         return if (activeSchedule != null) {
             activeSchedule.blockedApps
@@ -174,11 +185,83 @@ class SettingsManager(context: Context) {
     }
 
     fun getActiveBlockedWebsites(): Set<String> {
+        // 집중모드가 활성화된 경우 집중모드의 차단 목록 사용
+        if (isFocusActive()) {
+            val currentFocusMode = getCurrentFocusMode()
+            if (currentFocusMode != null) {
+                return currentFocusMode.blockedWebsites
+            }
+        }
+        
+        // 스케줄이 활성화된 경우 스케줄의 차단 목록 사용
         val activeSchedule = getActiveSchedule()
         return if (activeSchedule != null) {
             activeSchedule.blockedWebsites
         } else {
             getBlockedWebsites() // 일반 차단 목록 사용
         }
+    }
+
+    // 집중모드 관리 메서드들
+    fun addFocusMode(focusMode: FocusMode) {
+        val focusModes = getFocusModes().toMutableList()
+        focusModes.add(focusMode)
+        saveFocusModes(focusModes)
+    }
+
+    fun updateFocusMode(focusMode: FocusMode) {
+        val focusModes = getFocusModes().toMutableList()
+        val index = focusModes.indexOfFirst { it.id == focusMode.id }
+        if (index != -1) {
+            focusModes[index] = focusMode
+            saveFocusModes(focusModes)
+        }
+    }
+
+    fun removeFocusMode(focusModeId: String) {
+        val focusModes = getFocusModes().toMutableList()
+        focusModes.removeAll { it.id == focusModeId }
+        saveFocusModes(focusModes)
+    }
+
+    fun getFocusModes(): List<FocusMode> {
+        val json = sharedPreferences.getString(KEY_FOCUS_MODES, "[]")
+        val type = object : TypeToken<List<FocusMode>>() {}.type
+        return try {
+            gson.fromJson(json, type) ?: emptyList()
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    private fun saveFocusModes(focusModes: List<FocusMode>) {
+        val json = gson.toJson(focusModes)
+        sharedPreferences.edit()
+            .putString(KEY_FOCUS_MODES, json)
+            .apply()
+    }
+
+    fun setCurrentFocusMode(focusMode: FocusMode?) {
+        val json = if (focusMode != null) gson.toJson(focusMode) else null
+        sharedPreferences.edit()
+            .putString(KEY_CURRENT_FOCUS_MODE, json)
+            .apply()
+    }
+
+    fun getCurrentFocusMode(): FocusMode? {
+        val json = sharedPreferences.getString(KEY_CURRENT_FOCUS_MODE, null)
+        return if (json != null) {
+            try {
+                gson.fromJson(json, FocusMode::class.java)
+            } catch (e: Exception) {
+                null
+            }
+        } else {
+            null
+        }
+    }
+
+    fun getFocusModeById(id: String): FocusMode? {
+        return getFocusModes().firstOrNull { it.id == id }
     }
 }

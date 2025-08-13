@@ -14,6 +14,7 @@ class BlockActivity : AppCompatActivity() {
     private lateinit var btnBackToHome: Button
     
     private var blockedAppPackage: String? = null
+    private var isWebsiteBlocked: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,9 +35,12 @@ class BlockActivity : AppCompatActivity() {
 
     private fun setupData() {
         blockedAppPackage = intent.getStringExtra("BLOCKED_APP_PACKAGE")
+        isWebsiteBlocked = intent.getBooleanExtra("BLOCKED_WEBSITE", false)
         
         if (blockedAppPackage != null) {
             tvBlockTitle.text = getString(R.string.app_blocked_title)
+        } else if (isWebsiteBlocked) {
+            tvBlockTitle.text = getString(R.string.website_blocked_title)
         } else {
             tvBlockTitle.text = getString(R.string.website_blocked_title)
         }
@@ -53,9 +57,17 @@ class BlockActivity : AppCompatActivity() {
     }
 
     private fun allowTemporarily() {
-        blockedAppPackage?.let { packageName ->
+        if (blockedAppPackage != null) {
+            // 앱 차단의 경우
             val tenMinutesInMillis = 10 * 60 * 1000L
-            FocusService.allowAppTemporarily(packageName, tenMinutesInMillis)
+            FocusService.allowAppTemporarily(blockedAppPackage!!, tenMinutesInMillis)
+            
+            Toast.makeText(this, getString(R.string.temporary_allowed), Toast.LENGTH_SHORT).show()
+            finish()
+        } else if (isWebsiteBlocked) {
+            // 웹사이트 차단의 경우
+            val tenMinutesInMillis = 10 * 60 * 1000L
+            WebsiteBlockerService.allowWebsiteTemporarily(tenMinutesInMillis)
             
             Toast.makeText(this, getString(R.string.temporary_allowed), Toast.LENGTH_SHORT).show()
             finish()

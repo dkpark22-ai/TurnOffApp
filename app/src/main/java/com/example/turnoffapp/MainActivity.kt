@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import android.os.Handler
 import android.os.Looper
+import android.widget.ScrollView
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -24,22 +25,26 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnUsageStats: Button
     private lateinit var btnAccessibility: Button
     private lateinit var btnOverlay: Button
-    private lateinit var btnStartFocus: Button
     private lateinit var btnStopFocus: Button
     private lateinit var btnScheduleManagement: Button
+    private lateinit var btnFocusModeManagement: Button
     private lateinit var rvActiveSchedules: RecyclerView
+    private lateinit var rvFocusModes: RecyclerView
     private lateinit var cardPermissions: View
+    private lateinit var cardFocusStatus: View
     private lateinit var layoutPermissionsHeader: View
     private lateinit var layoutPermissionButtons: View
     private lateinit var tvPermissionsToggle: TextView
-    private lateinit var layoutFocusStatus: View
     private lateinit var tvFocusModeName: TextView
     private lateinit var tvFocusStartTime: TextView
     private lateinit var tvFocusEndTime: TextView
     private lateinit var tvFocusRemainingTime: TextView
+    private lateinit var tvBlockedAppsList: TextView
+    private lateinit var tvBlockedWebsitesList: TextView
 
     private lateinit var settingsManager: SettingsManager
     private lateinit var activeSchedulesAdapter: ActiveSchedulesAdapter
+    private lateinit var focusModesAdapter: FocusModesAdapter
     private val handler = Handler(Looper.getMainLooper())
     private var updateRunnable: Runnable? = null
 
@@ -61,19 +66,22 @@ class MainActivity : AppCompatActivity() {
         btnUsageStats = findViewById(R.id.btn_usage_stats)
         btnAccessibility = findViewById(R.id.btn_accessibility)
         btnOverlay = findViewById(R.id.btn_overlay)
-        btnStartFocus = findViewById(R.id.btn_start_focus)
         btnStopFocus = findViewById(R.id.btn_stop_focus)
         btnScheduleManagement = findViewById(R.id.btn_schedule_management)
+        btnFocusModeManagement = findViewById(R.id.btn_focus_mode_management)
         rvActiveSchedules = findViewById(R.id.rv_active_schedules)
+        rvFocusModes = findViewById(R.id.rv_focus_modes)
         cardPermissions = findViewById(R.id.card_permissions)
+        cardFocusStatus = findViewById(R.id.card_focus_status)
         layoutPermissionsHeader = findViewById(R.id.layout_permissions_header)
         layoutPermissionButtons = findViewById(R.id.layout_permission_buttons)
         tvPermissionsToggle = findViewById(R.id.tv_permissions_toggle)
-        layoutFocusStatus = findViewById(R.id.layout_focus_status)
         tvFocusModeName = findViewById(R.id.tv_focus_mode_name)
         tvFocusStartTime = findViewById(R.id.tv_focus_start_time)
         tvFocusEndTime = findViewById(R.id.tv_focus_end_time)
         tvFocusRemainingTime = findViewById(R.id.tv_focus_remaining_time)
+        tvBlockedAppsList = findViewById(R.id.tv_blocked_apps_list)
+        tvBlockedWebsitesList = findViewById(R.id.tv_blocked_websites_list)
     }
 
     private fun initAdapters() {
@@ -85,13 +93,30 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        focusModesAdapter = FocusModesAdapter(
+            onStartFocusMode = { focusMode ->
+                startFocusMode(focusMode)
+            },
+            onEditFocusMode = { focusMode ->
+                // 집중모드 수정 화면으로 이동
+                val intent = Intent(this, FocusModeEditActivity::class.java).apply {
+                    putExtra("focus_mode_id", focusMode.id)
+                }
+                startActivity(intent)
+            }
+        )
+
         rvActiveSchedules.layoutManager = LinearLayoutManager(this)
         rvActiveSchedules.adapter = activeSchedulesAdapter
+
+        rvFocusModes.layoutManager = LinearLayoutManager(this)
+        rvFocusModes.adapter = focusModesAdapter
     }
 
     private fun initSettingsManager() {
         settingsManager = SettingsManager(this)
         updateActiveSchedules()
+        updateFocusModes()
     }
 
     private fun setupClickListeners() {
@@ -107,13 +132,13 @@ class MainActivity : AppCompatActivity() {
             requestOverlayPermission()
         }
 
-        btnStartFocus.setOnClickListener {
-            val intent = Intent(this, FocusModeActivity::class.java)
+        btnScheduleManagement.setOnClickListener {
+            val intent = Intent(this, ScheduleActivity::class.java)
             startActivity(intent)
         }
 
-        btnScheduleManagement.setOnClickListener {
-            val intent = Intent(this, ScheduleActivity::class.java)
+        btnFocusModeManagement.setOnClickListener {
+            val intent = Intent(this, FocusModeManagementActivity::class.java)
             startActivity(intent)
         }
 
@@ -147,6 +172,11 @@ class MainActivity : AppCompatActivity() {
     private fun updateActiveSchedules() {
         val activeSchedules = settingsManager.getActiveSchedules()
         activeSchedulesAdapter.updateSchedules(activeSchedules)
+    }
+
+    private fun updateFocusModes() {
+        val focusModes = settingsManager.getFocusModes()
+        focusModesAdapter.updateFocusModes(focusModes)
     }
 
     private fun togglePermissionsSection() {
@@ -237,6 +267,7 @@ class MainActivity : AppCompatActivity() {
     private fun stopFocusMode() {
         // 집중 모드 상태를 먼저 비활성화
         settingsManager.setFocusMode(false)
+        settingsManager.setCurrentFocusMode(null)
         
         // 서비스 중단
         val intent = Intent(this, FocusService::class.java)
@@ -248,15 +279,47 @@ class MainActivity : AppCompatActivity() {
         updateFocusStatus()
     }
 
+    private fun startFocusMode(focusMode: FocusMode) {
+        val currentTime = System.currentTimeMillis()
+        val endTime = if (focusMode.isUnlimited()) {
+            Long.MAX_VALUE
+        } else {
+            currentTime + (focusMode.durationMinutes * 60 * 1000L)
+        }
+        
+        settingsManager.setFocusMode(true, currentTime, endTime, focusMode.name)
+        settingsManager.setCurrentFocusMode(focusMode)
+        
+        val intent = Intent(this, FocusService::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(intent)
+        } else {
+            startService(intent)
+        }
+        
+        Toast.makeText(this, "${focusMode.name} 집중모드를 시작했습니다", Toast.LENGTH_SHORT).show()
+        updateFocusStatus()
+        
+        // 집중 모드 시작 후 진행중인 집중모드 카드로 스크롤
+        handler.postDelayed({
+            val scrollView = findViewById<ScrollView>(R.id.main_scroll_view)
+            scrollView?.let { sv ->
+                val location = IntArray(2)
+                cardFocusStatus.getLocationOnScreen(location)
+                val parentLocation = IntArray(2)
+                sv.getLocationOnScreen(parentLocation)
+                val targetY = location[1] - parentLocation[1] - 100 // 100dp 위쪽 여백
+                sv.smoothScrollTo(0, targetY.coerceAtLeast(0))
+            }
+        }, 300) // 300ms 딜레이로 UI 업데이트 완료 후 스크롤
+    }
+
     private fun updateFocusStatus() {
         val isFocusActive = settingsManager.isFocusActive()
         
         if (isFocusActive) {
-            // 집중 모드 활성화 상태
-            btnStartFocus.visibility = View.GONE
-            layoutFocusStatus.visibility = View.VISIBLE
+            cardFocusStatus.visibility = View.VISIBLE
             
-            // 집중 모드 정보 업데이트
             tvFocusModeName.text = settingsManager.getFocusModeName()
             
             val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
@@ -272,11 +335,10 @@ class MainActivity : AppCompatActivity() {
             }
             
             updateRemainingTime()
+            updateBlockedItemsList()
             startTimeUpdater()
         } else {
-            // 집중 모드 비활성화 상태
-            btnStartFocus.visibility = View.VISIBLE
-            layoutFocusStatus.visibility = View.GONE
+            cardFocusStatus.visibility = View.GONE
             stopTimeUpdater()
         }
     }
@@ -325,12 +387,45 @@ class MainActivity : AppCompatActivity() {
         updateRunnable = null
     }
 
+    private fun updateBlockedItemsList() {
+        val currentFocusMode = settingsManager.getCurrentFocusMode()
+        if (currentFocusMode != null) {
+            // 차단된 앱 목록 표시
+            if (currentFocusMode.blockedApps.isNotEmpty()) {
+                val appNames = currentFocusMode.blockedApps.map { packageName ->
+                    getAppName(packageName)
+                }.joinToString(", ")
+                tvBlockedAppsList.text = "앱: $appNames"
+            } else {
+                tvBlockedAppsList.text = "앱: 없음"
+            }
+            
+            // 차단된 웹사이트 목록 표시
+            if (currentFocusMode.blockedWebsites.isNotEmpty()) {
+                val websites = currentFocusMode.blockedWebsites.joinToString(", ")
+                tvBlockedWebsitesList.text = "웹사이트: $websites"
+            } else {
+                tvBlockedWebsitesList.text = "웹사이트: 없음"
+            }
+        }
+    }
+    
+    private fun getAppName(packageName: String): String {
+        return try {
+            val applicationInfo = packageManager.getApplicationInfo(packageName, 0)
+            packageManager.getApplicationLabel(applicationInfo).toString()
+        } catch (e: Exception) {
+            packageName // 앱 이름을 가져올 수 없으면 패키지명 사용
+        }
+    }
+
     override fun onResume() {
         super.onResume()
         updatePermissionButtons()
         updateActiveSchedules()
-        updateFocusStatus() // 집중 모드 상태 업데이트
-        startScheduleMonitoring() // 권한이 새로 허용된 경우를 위해
+        updateFocusModes()
+        updateFocusStatus()
+        startScheduleMonitoring()
     }
 
     override fun onPause() {

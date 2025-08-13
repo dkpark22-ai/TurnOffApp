@@ -17,6 +17,18 @@ class WebsiteBlockerService : AccessibilityService() {
         "com.brave.browser"
     )
 
+    companion object {
+        private var websiteTemporaryAllowEndTime: Long = 0
+        
+        fun allowWebsiteTemporarily(durationMillis: Long) {
+            websiteTemporaryAllowEndTime = System.currentTimeMillis() + durationMillis
+        }
+        
+        private fun isWebsiteTemporarilyAllowed(): Boolean {
+            return System.currentTimeMillis() < websiteTemporaryAllowEndTime
+        }
+    }
+
     override fun onServiceConnected() {
         super.onServiceConnected()
         settingsManager = SettingsManager(this)
@@ -44,6 +56,12 @@ class WebsiteBlockerService : AccessibilityService() {
     private fun checkUrlInBrowser(rootNode: AccessibilityNodeInfo) {
         val url = extractUrlFromBrowser(rootNode)
         android.util.Log.d("WebsiteBlockerService", "Extracted URL: $url")
+        
+        // 웹사이트가 임시 허용되었는지 먼저 확인
+        if (isWebsiteTemporarilyAllowed()) {
+            android.util.Log.d("WebsiteBlockerService", "Website temporarily allowed")
+            return
+        }
         
         if (url != null && isWebsiteBlocked(url)) {
             android.util.Log.d("WebsiteBlockerService", "Blocking website: $url")

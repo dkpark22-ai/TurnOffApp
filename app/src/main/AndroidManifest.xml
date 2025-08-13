@@ -116,6 +116,18 @@
             android:exported="false"
             android:theme="@style/Theme.TurnOffApp" />
 
+        <!-- 집중 모드 관리 액티비티 -->
+        <activity
+            android:name=".FocusModeManagementActivity"
+            android:exported="false"
+            android:theme="@style/Theme.TurnOffApp" />
+
+        <!-- 집중 모드 편집 액티비티 -->
+        <activity
+            android:name=".FocusModeEditActivity"
+            android:exported="false"
+            android:theme="@style/Theme.TurnOffApp" />
+
     </application>
 
 </manifest>

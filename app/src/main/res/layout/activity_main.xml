@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main_scroll_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
@@ -138,10 +139,11 @@
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- 집중 모드 제어 -->
+    <!-- 등록된 집중모드 표시 -->
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
         app:cardCornerRadius="8dp"
         app:cardElevation="4dp"
         app:strokeWidth="1dp"
@@ -156,118 +158,175 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/focus_mode_title"
+                android:text="집중모드"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="12dp" />
 
-            <!-- 집중 모드 설정 버튼 (집중 모드가 비활성화일 때) -->
-            <Button
-                android:id="@+id/btn_start_focus"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_focus_modes"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/start_focus"
+                android:layout_marginBottom="12dp" />
+
+            <Button
+                android:id="@+id/btn_focus_mode_management"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="집중모드 관리"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- 집중 모드 진행 상황 (집중 모드가 활성화일 때만 표시) -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card_focus_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="4dp"
+        app:strokeWidth="1dp"
+        app:strokeColor="@color/purple_500"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="진행 중인 집중모드"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/purple_500"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:id="@+id/tv_focus_mode_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="집중 모드 (25분)"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:visibility="visible" />
+                android:layout_marginBottom="8dp" />
 
-            <!-- 집중 모드 진행 상황 (집중 모드가 활성화일 때) -->
             <LinearLayout
-                android:id="@+id/layout_focus_status"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="4dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="시작시간: "
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/tv_focus_start_time"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="09:00"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="4dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="종료시간: "
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/tv_focus_end_time"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="09:25"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="남은시간: "
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/tv_focus_remaining_time"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="23분 15초"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/purple_500" />
+
+            </LinearLayout>
+
+            <!-- 차단된 앱과 웹사이트 목록 -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:visibility="gone">
+                android:layout_marginBottom="12dp">
 
                 <TextView
-                    android:id="@+id/tv_focus_mode_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="집중 모드 (25분)"
-                    android:textSize="16sp"
+                    android:text="차단된 앱과 웹사이트"
+                    android:textSize="14sp"
                     android:textStyle="bold"
                     android:layout_marginBottom="8dp" />
 
-                <LinearLayout
+                <TextView
+                    android:id="@+id/tv_blocked_apps_list"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="4dp">
+                    android:text="앱: Instagram, YouTube, TikTok"
+                    android:textSize="12sp"
+                    android:textColor="@android:color/darker_gray"
+                    android:layout_marginBottom="4dp" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="시작시간: "
-                        android:textSize="14sp" />
-
-                    <TextView
-                        android:id="@+id/tv_focus_start_time"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="09:00"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-
-                </LinearLayout>
-
-                <LinearLayout
+                <TextView
+                    android:id="@+id/tv_blocked_websites_list"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="4dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="종료시간: "
-                        android:textSize="14sp" />
-
-                    <TextView
-                        android:id="@+id/tv_focus_end_time"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="09:25"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="12dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="남은시간: "
-                        android:textSize="14sp" />
-
-                    <TextView
-                        android:id="@+id/tv_focus_remaining_time"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="23분 15초"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/purple_500" />
-
-                </LinearLayout>
-
-                <Button
-                    android:id="@+id/btn_stop_focus"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/stop_focus"
-                    android:textSize="16sp"
-                    android:background="@android:color/holo_red_light"
-                    android:textColor="@android:color/white" />
+                    android:text="웹사이트: facebook.com, youtube.com"
+                    android:textSize="12sp"
+                    android:textColor="@android:color/darker_gray" />
 
             </LinearLayout>
+
+            <Button
+                android:id="@+id/btn_stop_focus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/stop_focus"
+                android:textSize="14sp"
+                android:backgroundTint="@android:color/holo_red_light"
+                android:textColor="@android:color/white" />
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>

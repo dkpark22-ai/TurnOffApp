@@ -15,37 +15,37 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/schedule_management"
+            android:text="집중모드 관리"
             android:textSize="24sp"
             android:textStyle="bold"
             android:gravity="center"
             android:layout_marginBottom="24dp" />
 
         <Button
-            android:id="@+id/btn_add_schedule"
+            android:id="@+id/btn_add_focus_mode"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/add_schedule"
+            android:text="+ 집중모드 추가"
             android:textSize="16sp"
             android:layout_marginBottom="16dp" />
 
-        <androidx.cardview.widget.CardView
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_focus_modes"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="2dp"
-            app:strokeWidth="1dp"
-            app:strokeColor="@android:color/darker_gray">
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_schedules"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"
-                android:padding="8dp"
-                android:clipToPadding="false" />
-
-        </androidx.cardview.widget.CardView>
+        <!-- 빈 상태 메시지 -->
+        <TextView
+            android:id="@+id/tv_empty_message"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:text="등록된 집중모드가 없습니다.\n위의 '+ 집중모드 추가' 버튼을 눌러 새로운 집중모드를 만들어보세요."
+            android:textSize="16sp"
+            android:textColor="@android:color/darker_gray"
+            android:gravity="center"
+            android:visibility="gone" />
 
     </LinearLayout>
 
