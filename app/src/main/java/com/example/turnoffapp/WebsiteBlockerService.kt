@@ -108,6 +108,13 @@ class WebsiteBlockerService : AccessibilityService() {
     }
 
     private fun isWebsiteBlocked(url: String): Boolean {
+        val isFocusActive = settingsManager.isFocusActive()
+        val activeSchedule = settingsManager.getActiveSchedule()
+
+        if (!isFocusActive && activeSchedule == null) {
+            return false
+        }
+
         val blockedWebsites = settingsManager.getActiveBlockedWebsites()
         val currentDomain = extractDomain(url)
 
