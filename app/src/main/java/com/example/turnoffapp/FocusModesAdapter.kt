@@ -9,7 +9,8 @@ import androidx.recyclerview.widget.RecyclerView
 
 class FocusModesAdapter(
     private val onStartFocusMode: (FocusMode) -> Unit,
-    private val onEditFocusMode: (FocusMode) -> Unit
+    private val onEditFocusMode: (FocusMode) -> Unit,
+    private val getAppName: (String) -> String
 ) : RecyclerView.Adapter<FocusModesAdapter.FocusModeViewHolder>() {
 
     private var focusModes = listOf<FocusMode>()
@@ -34,16 +35,29 @@ class FocusModesAdapter(
     inner class FocusModeViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val tvFocusModeName: TextView = itemView.findViewById(R.id.tv_focus_mode_name)
         private val tvFocusModeDuration: TextView = itemView.findViewById(R.id.tv_focus_mode_duration)
-        private val tvFocusModeAppsCount: TextView = itemView.findViewById(R.id.tv_focus_mode_apps_count)
+        private val tvBlockedItems: TextView = itemView.findViewById(R.id.tv_focus_mode_blocked_items)
         private val btnStartFocusMode: Button = itemView.findViewById(R.id.btn_start_focus_mode)
 
         fun bind(focusMode: FocusMode) {
             tvFocusModeName.text = focusMode.name
             tvFocusModeDuration.text = focusMode.getDurationText()
-            
-            val appsCount = focusMode.blockedApps.size
-            val websitesCount = focusMode.blockedWebsites.size
-            tvFocusModeAppsCount.text = "차단 앱 ${appsCount}개, 웹사이트 ${websitesCount}개"
+
+            val blockedApps = focusMode.blockedApps.map(getAppName).joinToString(", ")
+            val blockedWebsites = focusMode.blockedWebsites.joinToString(", ")
+
+            val blockedItemsText = mutableListOf<String>()
+            if (blockedApps.isNotEmpty()) {
+                blockedItemsText.add("앱: $blockedApps")
+            }
+            if (blockedWebsites.isNotEmpty()) {
+                blockedItemsText.add("사이트: $blockedWebsites")
+            }
+
+            tvBlockedItems.text = if (blockedItemsText.isEmpty()) {
+                "차단된 항목 없음"
+            } else {
+                blockedItemsText.joinToString(" / ")
+            }
 
             btnStartFocusMode.setOnClickListener {
                 onStartFocusMode(focusMode)

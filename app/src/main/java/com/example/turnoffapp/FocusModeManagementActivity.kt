@@ -50,7 +50,8 @@ class FocusModeManagementActivity : AppCompatActivity() {
             },
             onDeleteFocusMode = { focusMode ->
                 showDeleteConfirmDialog(focusMode)
-            }
+            },
+            getAppName = this::getAppName
         )
 
         rvFocusModes.layoutManager = LinearLayoutManager(this)
@@ -103,6 +104,15 @@ class FocusModeManagementActivity : AppCompatActivity() {
         settingsManager.removeFocusMode(focusMode.id)
         updateFocusModeList()
         Toast.makeText(this, "'${focusMode.name}' 집중모드가 삭제되었습니다", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun getAppName(packageName: String): String {
+        return try {
+            val applicationInfo = packageManager.getApplicationInfo(packageName, 0)
+            packageManager.getApplicationLabel(applicationInfo).toString()
+        } catch (e: Exception) {
+            packageName // 앱 이름을 가져올 수 없으면 패키지명 사용
+        }
     }
 
     override fun onResume() {

@@ -68,10 +68,10 @@
                 android:layout_marginBottom="4dp" />
 
             <TextView
-                android:id="@+id/tv_focus_mode_apps_count"
+                android:id="@+id/tv_focus_mode_blocked_items"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="차단 앱 5개, 웹사이트 3개"
+                android:text="차단: YouTube, dogdrip.net"
                 android:textSize="12sp"
                 android:textColor="@android:color/darker_gray" />
 

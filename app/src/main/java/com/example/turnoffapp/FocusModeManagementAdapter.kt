@@ -10,7 +10,8 @@ import androidx.recyclerview.widget.RecyclerView
 
 class FocusModeManagementAdapter(
     private val onEditFocusMode: (FocusMode) -> Unit,
-    private val onDeleteFocusMode: (FocusMode) -> Unit
+    private val onDeleteFocusMode: (FocusMode) -> Unit,
+    private val getAppName: (String) -> String
 ) : RecyclerView.Adapter<FocusModeManagementAdapter.FocusModeViewHolder>() {
 
     private var focusModes = listOf<FocusMode>()
@@ -36,7 +37,7 @@ class FocusModeManagementAdapter(
         private val tvFocusModeName: TextView = itemView.findViewById(R.id.tv_focus_mode_name)
         private val tvFocusModeDuration: TextView = itemView.findViewById(R.id.tv_focus_mode_duration)
         private val tvFocusModeBreakInfo: TextView = itemView.findViewById(R.id.tv_focus_mode_break_info)
-        private val tvFocusModeAppsCount: TextView = itemView.findViewById(R.id.tv_focus_mode_apps_count)
+        private val tvBlockedItems: TextView = itemView.findViewById(R.id.tv_focus_mode_blocked_items)
         private val btnMenu: ImageButton = itemView.findViewById(R.id.btn_menu)
         private val btnEdit: Button = itemView.findViewById(R.id.btn_edit)
         private val btnDelete: Button = itemView.findViewById(R.id.btn_delete)
@@ -45,10 +46,23 @@ class FocusModeManagementAdapter(
             tvFocusModeName.text = focusMode.name
             tvFocusModeDuration.text = focusMode.getDurationText()
             tvFocusModeBreakInfo.text = focusMode.getBreakText()
-            
-            val appsCount = focusMode.blockedApps.size
-            val websitesCount = focusMode.blockedWebsites.size
-            tvFocusModeAppsCount.text = "차단 앱 ${appsCount}개, 웹사이트 ${websitesCount}개"
+
+            val blockedApps = focusMode.blockedApps.map(getAppName).joinToString(", ")
+            val blockedWebsites = focusMode.blockedWebsites.joinToString(", ")
+
+            val blockedItemsText = mutableListOf<String>()
+            if (blockedApps.isNotEmpty()) {
+                blockedItemsText.add("앱: $blockedApps")
+            }
+            if (blockedWebsites.isNotEmpty()) {
+                blockedItemsText.add("사이트: $blockedWebsites")
+            }
+
+            tvBlockedItems.text = if (blockedItemsText.isEmpty()) {
+                "차단된 항목 없음"
+            } else {
+                blockedItemsText.joinToString(" / ")
+            }
 
             btnEdit.setOnClickListener {
                 onEditFocusMode(focusMode)

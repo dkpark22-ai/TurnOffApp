@@ -103,7 +103,8 @@ class MainActivity : AppCompatActivity() {
                     putExtra("focus_mode_id", focusMode.id)
                 }
                 startActivity(intent)
-            }
+            },
+            getAppName = this::getAppName
         )
 
         rvActiveSchedules.layoutManager = LinearLayoutManager(this)
