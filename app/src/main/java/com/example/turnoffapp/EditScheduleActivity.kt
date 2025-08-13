@@ -1,8 +1,12 @@
 package com.example.turnoffapp
 
+import android.app.AlertDialog
 import android.app.TimePickerDialog
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import java.util.*
@@ -178,24 +182,31 @@ class EditScheduleActivity : AppCompatActivity() {
     }
 
     private fun selectWebsites() {
-        // 간단한 다이얼로그로 웹사이트 URL 입력
-        val builder = android.app.AlertDialog.Builder(this)
-        val editText = android.widget.EditText(this)
-        editText.hint = "웹사이트 URL 입력"
-        
-        builder.setTitle("웹사이트 추가")
-            .setView(editText)
-            .setPositiveButton("추가") { _, _ ->
-                val url = editText.text.toString().trim()
-                if (url.isNotEmpty()) {
-                    val formattedUrl = if (!url.startsWith("http")) "https://$url" else url
-                    selectedWebsites.add(formattedUrl)
-                    updateSelectedLists()
-                    Toast.makeText(this, "웹사이트가 추가되었습니다", Toast.LENGTH_SHORT).show()
-                }
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_add_website, null)
+        val editText = dialogView.findViewById<EditText>(R.id.et_website_url)
+
+        val builder = AlertDialog.Builder(this)
+        builder.setView(dialogView)
+
+        val dialog = builder.create()
+
+        dialogView.findViewById<Button>(R.id.btn_add).setOnClickListener {
+            val url = editText.text.toString().trim()
+            if (url.isNotEmpty()) {
+                val formattedUrl = if (!url.startsWith("http")) "https://$url" else url
+                selectedWebsites.add(formattedUrl)
+                updateSelectedLists()
+                Toast.makeText(this, "웹사이트가 추가되었습니다", Toast.LENGTH_SHORT).show()
+                dialog.dismiss()
             }
-            .setNegativeButton("취소", null)
-            .show()
+        }
+
+        dialogView.findViewById<Button>(R.id.btn_cancel).setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.show()
     }
 
     private fun saveSchedule() {

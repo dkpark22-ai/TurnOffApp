@@ -110,6 +110,12 @@
                 android:resource="@xml/accessibility_service_config" />
         </service>
 
+        <!-- 집중 모드 설정 액티비티 -->
+        <activity
+            android:name=".FocusModeActivity"
+            android:exported="false"
+            android:theme="@style/Theme.TurnOffApp" />
+
     </application>
 
 </manifest>

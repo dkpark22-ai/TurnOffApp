@@ -8,8 +8,8 @@
     <string name="focus_mode_title">집중 모드</string>
     <string name="timer_mode">타이머 모드</string>
     <string name="schedule_mode">스케줄 모드</string>
-    <string name="start_focus">집중 설정</string>
-    <string name="stop_focus">집중 종료</string>
+    <string name="start_focus">시작하기</string>
+    <string name="stop_focus">중단하기</string>
     
     <!-- 차단 화면 -->
     <string name="app_blocked_title">앱이 차단되었습니다</string>

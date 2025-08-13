@@ -45,16 +45,20 @@ class FocusService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        val currentTime = System.currentTimeMillis()
         isScheduleMode = intent?.getBooleanExtra("is_schedule_mode", false) ?: false
         scheduleId = intent?.getStringExtra("schedule_id")
         
         if (isScheduleMode) {
             // 스케줄 모드 - 무한 실행
             focusEndTime = Long.MAX_VALUE
+            val activeSchedule = settingsManager.getActiveSchedule()
+            settingsManager.setFocusMode(true, currentTime, focusEndTime, "스케줄: ${activeSchedule?.name ?: "알 수 없음"}")
         } else {
             // 타이머 모드 - 지정된 시간만 실행
             val durationMinutes = intent?.getIntExtra("duration_minutes", 25) ?: 25
-            focusEndTime = System.currentTimeMillis() + (durationMinutes * 60 * 1000)
+            focusEndTime = currentTime + (durationMinutes * 60 * 1000)
+            settingsManager.setFocusMode(true, currentTime, focusEndTime, "집중 모드 (${durationMinutes}분)")
         }
         
         isRunning = true
@@ -62,6 +66,13 @@ class FocusService : Service() {
 
         scope.launch {
             while (isRunning) {
+                // 집중 모드가 외부에서 비활성화되었는지 확인
+                if (!settingsManager.isFocusActive()) {
+                    android.util.Log.d("FocusService", "Focus mode disabled externally")
+                    stopSelf()
+                    break
+                }
+                
                 if (isScheduleMode) {
                     // 스케줄 모드에서는 스케줄이 여전히 활성화되어 있는지 체크
                     val activeSchedule = settingsManager.getActiveSchedule()
@@ -168,6 +179,7 @@ class FocusService : Service() {
         isRunning = false
         job.cancel()
         temporaryWhitelist.clear()
+        settingsManager.setFocusMode(false) // 집중 모드 종료 상태 업데이트
     }
 
     override fun onBind(intent: Intent?): IBinder? = null

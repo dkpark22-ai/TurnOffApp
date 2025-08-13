@@ -60,53 +60,76 @@ class WebsiteBlockerService : AccessibilityService() {
     }
 
     private fun findUrlNode(node: AccessibilityNodeInfo): AccessibilityNodeInfo? {
+        // First, check for common resource IDs for URL bars.
         if (node.viewIdResourceName?.contains("url_bar") == true ||
-            node.viewIdResourceName?.contains("address_bar") == true ||
-            node.className?.contains("EditText") == true && 
-            node.text?.toString()?.startsWith("http") == true) {
+            node.viewIdResourceName?.contains("address_bar") == true) {
             return node
         }
 
+        // Fallback: Check for an EditText that likely contains a URL.
+        // This is less reliable but can work on some browsers.
+        if (node.className?.contains("EditText") == true) {
+            val text = node.text?.toString() ?: ""
+            // A simple heuristic: if it contains a dot and no spaces, it could be a URL.
+            if (text.contains(".") && !text.contains(" ")) {
+                return node
+            }
+        }
+
+        // Recursively search in children.
         for (i in 0 until node.childCount) {
             val child = node.getChild(i) ?: continue
             val result = findUrlNode(child)
             if (result != null) {
                 return result
             }
+            // It's important to release the node info to avoid memory leaks
+            child.recycle()
         }
         return null
     }
 
     private fun isWebsiteBlocked(url: String): Boolean {
         val blockedWebsites = settingsManager.getActiveBlockedWebsites()
-        
-        android.util.Log.d("WebsiteBlockerService", "Checking URL: $url")
+        val currentDomain = extractDomain(url)
+
+        android.util.Log.d("WebsiteBlockerService", "Checking domain: $currentDomain")
         android.util.Log.d("WebsiteBlockerService", "Blocked websites: $blockedWebsites")
-        
+
+        if (currentDomain.isEmpty()) return false
+
         val isBlocked = blockedWebsites.any { blockedUrl ->
-            val domain = extractDomain(blockedUrl)
-            val result = url.contains(domain, ignoreCase = true)
-            android.util.Log.d("WebsiteBlockerService", "Checking domain '$domain' in URL: $result")
+            val storedDomain = extractDomain(blockedUrl)
+            val result = currentDomain.equals(storedDomain, ignoreCase = true)
+            android.util.Log.d("WebsiteBlockerService", "Comparing '$currentDomain' with stored domain '$storedDomain': $result")
             result
         }
-        
+
         android.util.Log.d("WebsiteBlockerService", "URL is blocked: $isBlocked")
         return isBlocked
     }
 
     private fun extractDomain(url: String): String {
         return try {
-            val cleanUrl = url.removePrefix("https://").removePrefix("http://").removePrefix("www.")
-            cleanUrl.split("/")[0]
+            val host = if (url.startsWith("http://") || url.startsWith("https://")) {
+                java.net.URI(url).host
+            } else {
+                // 스키마가 없는 경우 임시로 추가하여 URI 파싱
+                java.net.URI("http://$url").host
+            }
+            // 'www.' 접두사 제거
+            host?.removePrefix("www.") ?: ""
+        } catch (e: java.net.URISyntaxException) {
+            // 정식 URL이 아닌 경우 (예: "dogdrip.net")
+            // "www." 접두사 제거 후 반환
+            url.removePrefix("www.")
         } catch (e: Exception) {
-            url
+            ""
         }
     }
 
     private fun blockWebsite() {
         try {
-            performGlobalAction(GLOBAL_ACTION_BACK)
-            
             val intent = Intent(this, BlockActivity::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 putExtra("BLOCKED_WEBSITE", true)

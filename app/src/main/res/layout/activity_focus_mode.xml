@@ -164,7 +164,7 @@
             android:id="@+id/btn_start_focus"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="집중 모드 시작"
+            android:text="집중시작하기"
             android:textSize="16sp"
             android:textStyle="bold"
             android:background="?attr/colorPrimary"

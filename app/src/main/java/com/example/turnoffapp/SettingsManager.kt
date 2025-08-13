@@ -16,6 +16,9 @@ class SettingsManager(context: Context) {
         private const val KEY_FOCUS_DURATION = "focus_duration"
         private const val KEY_IS_FOCUS_ACTIVE = "is_focus_active"
         private const val KEY_SCHEDULES = "schedules"
+        private const val KEY_FOCUS_START_TIME = "focus_start_time"
+        private const val KEY_FOCUS_END_TIME = "focus_end_time"
+        private const val KEY_FOCUS_MODE_NAME = "focus_mode_name"
     }
 
     fun addBlockedApp(packageName: String) {
@@ -80,6 +83,34 @@ class SettingsManager(context: Context) {
 
     fun isFocusActive(): Boolean {
         return sharedPreferences.getBoolean(KEY_IS_FOCUS_ACTIVE, false)
+    }
+    
+    fun setFocusMode(isActive: Boolean, startTime: Long = 0, endTime: Long = 0, modeName: String = "") {
+        sharedPreferences.edit()
+            .putBoolean(KEY_IS_FOCUS_ACTIVE, isActive)
+            .putLong(KEY_FOCUS_START_TIME, startTime)
+            .putLong(KEY_FOCUS_END_TIME, endTime)
+            .putString(KEY_FOCUS_MODE_NAME, modeName)
+            .apply()
+    }
+    
+    fun getFocusStartTime(): Long {
+        return sharedPreferences.getLong(KEY_FOCUS_START_TIME, 0)
+    }
+    
+    fun getFocusEndTime(): Long {
+        return sharedPreferences.getLong(KEY_FOCUS_END_TIME, 0)
+    }
+    
+    fun getFocusModeName(): String {
+        return sharedPreferences.getString(KEY_FOCUS_MODE_NAME, "") ?: ""
+    }
+    
+    fun getRemainingFocusTime(): Long {
+        if (!isFocusActive()) return 0
+        val endTime = getFocusEndTime()
+        val currentTime = System.currentTimeMillis()
+        return maxOf(0, endTime - currentTime)
     }
 
     fun clearAllSettings() {
