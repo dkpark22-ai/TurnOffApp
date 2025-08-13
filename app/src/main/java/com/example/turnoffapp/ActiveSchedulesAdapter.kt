@@ -60,7 +60,7 @@ class ActiveSchedulesAdapter(
             tvScheduleTime.text = "$daysText | $startTime - $endTime"
 
             val isActive = isScheduleCurrentlyActive(schedule)
-            tvScheduleStatus.text = if (isActive) "활성화" else "비활성화"
+            tvScheduleStatus.text = if (isActive) "적용중" else "적용시간이 아닙니다."
             tvScheduleStatus.setTextColor(
                 if (isActive) 
                     itemView.context.getColor(android.R.color.holo_green_dark)
